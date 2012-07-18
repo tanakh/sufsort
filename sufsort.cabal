@@ -52,4 +52,4 @@ executable sufsort-prof
                      , vector
                      , primitive
                      , control-monad-loop
-  ghc-options:         -O3 -prof -auto-all -rtsopts
+  ghc-options:         -O2 -funbox-strict-fields -prof -auto-all -rtsopts

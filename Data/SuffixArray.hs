@@ -13,15 +13,16 @@ import Control.Monad.ST
 import Control.Monad.Primitive
 import Control.Monad.Trans
 import Control.Monad.Trans.Loop
-import Data.Bits
 import qualified Data.Vector.Generic as G
 import qualified Data.Vector.Generic.Mutable as GM
 import qualified Data.Vector.Unboxed as U
+import qualified Data.Vector.Unboxed.Mutable as UM
+import Data.Word
 
 -- import Debug.Trace
 
-type CharType a = (Num a, Integral a, Bits a, Bounded a, U.Unbox a)
-type IndexType a = (Num a, Integral a, Bits a, Bounded a, U.Unbox a)
+type CharType a = (Integral a)
+type IndexType a = (Integral a, Bounded a)
 
 -- | Sort suffixes for given string.
 -- | String must not contain the `maxBound :: b` values.
@@ -181,10 +182,9 @@ induceSAs :: ( Functor m, PrimMonad m, s ~ PrimState m
              , GM.MVector w b )
              => v a -> w s b -> b -> v Bool -> m ()
 induceSAs t sa k ls = do
-  bkt <- G.thaw $ getBucket t k True
-  go bkt (n - 1)
+  !bkt <- G.thaw $ getBucket t k True
+  go bkt (G.length t - 1)
   where
-    n = G.length t
     go !bkt !i = do
       !j0 <- GM.unsafeRead sa i
       let !j = fromIntegral $ j0 - 1
@@ -193,6 +193,8 @@ induceSAs t sa k ls = do
         GM.unsafeWrite bkt (fromIntegral $ t `G.unsafeIndex` j) ix
         GM.unsafeWrite sa (fromIntegral ix) (fromIntegral j)
       when (i > 0) $ go bkt (i - 1)
+{-# SPECIALIZE induceSAs ::
+      U.Vector Int -> UM.STVector s Int -> Int -> U.Vector Bool -> ST s () #-}
 
 {-
 induceSAs t sa k ls = do
