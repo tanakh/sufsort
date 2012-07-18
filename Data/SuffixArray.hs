@@ -17,7 +17,7 @@ import qualified Data.Vector.Generic as G
 import qualified Data.Vector.Generic.Mutable as GM
 import qualified Data.Vector.Unboxed as U
 
-import Debug.Trace
+-- import Debug.Trace
 
 type CharType a = (Num a, Integral a, Bits a, Bounded a, U.Unbox a)
 type IndexType a = (Num a, Integral a, Bits a, Bounded a, U.Unbox a)
@@ -70,9 +70,9 @@ sais t sa k = do
       GM.write bkt (fromIntegral $ t G.! i) ix
 
   induceSAl t sa k ls
-  (\s -> traceShow (s :: v b) $ return ()) =<< G.unsafeFreeze sa
+  -- (\s -> traceShow (s :: v b) $ return ()) =<< G.unsafeFreeze sa
   induceSAs t sa k ls
-  (\s -> traceShow (s :: v b) $ return ()) =<< G.unsafeFreeze sa
+  -- (\s -> traceShow (s :: v b) $ return ()) =<< G.unsafeFreeze sa
 
   -- compact all the sorted substrings into the first n1 items of SA
   -- 2*n1 must be not larger than n (proveable)
@@ -98,7 +98,7 @@ sais t sa k = do
       when (d > 0 && (isLMS (pos + d) || isLMS (prev + d))) $
         exitWith False
       return $ d + 1
-    traceShow diff $ return ()
+    -- traceShow diff $ return ()
     let (nname, nprev) = if diff then (name + 1, pos) else (name, prev)
         p = if even pos then pos `div` 2 else (pos - 1) `div` 2
     lift $ GM.write sa (n1 + p) $ nname - 1
@@ -118,7 +118,7 @@ sais t sa k = do
   if fromIntegral name < n1
     then do -- recurse if names are not yet unique
     is1 <- G.freeze s1
-    traceShow is1 $ return ()
+    -- traceShow is1 $ return ()
     sais (is1 :: v b) sa1 name
     else do -- generate the suffix array of s1 directly
     forM_ [0 .. n1 - 1] $ \i -> do

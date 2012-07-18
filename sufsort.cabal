@@ -17,9 +17,9 @@ cabal-version:       >=1.8
 library
   exposed-modules:     Data.SuffixArray
   -- other-modules:       
-  build-depends:       base == 4.5.*
-                     , mtl == 2.1.*
-                     , vector == 0.9.*
+  build-depends:       base      == 4.5.*
+                     , mtl       == 2.1.*
+                     , vector    == 0.9.*
                      , primitive >= 0.4.1
                      , control-monad-loop
 
@@ -27,7 +27,20 @@ test-suite sufsort-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      dist
   main-is:             ../test.hs
-  build-depends:       base == 4.5.*
-                     , hspec >= 1.2
-                     , vector
+  build-depends:       base
                      , sufsort
+                     , hspec >= 1.3
+                     , vector
+
+benchmark sufsort-bench
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      dist
+  c-sources:           cbits/sais-lite-2.4.1/sais.c
+                       cbits/libdivsufsort-lite/divsufsort.c
+
+  main-is:             ../bench.hs
+  build-depends:       base
+                     , sufsort
+                     , criterion >= 0.6
+                     , vector
+                     , random
