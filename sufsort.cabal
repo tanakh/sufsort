@@ -44,3 +44,12 @@ benchmark sufsort-bench
                      , criterion >= 0.6
                      , vector
                      , random
+
+executable sufsort-prof
+  main-is:             profile.hs
+  build-depends:       base
+                     , mtl
+                     , vector
+                     , primitive
+                     , control-monad-loop
+  ghc-options:         -O3 -prof -auto-all -rtsopts

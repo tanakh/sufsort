@@ -1,5 +1,6 @@
 {-# LANGUAGE ConstraintKinds, ScopedTypeVariables, TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Data.SuffixArray (
   suffixSort,
@@ -181,6 +182,21 @@ induceSAs :: ( Functor m, PrimMonad m, s ~ PrimState m
              => v a -> w s b -> b -> v Bool -> m ()
 induceSAs t sa k ls = do
   bkt <- G.thaw $ getBucket t k True
+  go bkt (n - 1)
+  where
+    n = G.length t
+    go !bkt !i = do
+      !j0 <- GM.unsafeRead sa i
+      let !j = fromIntegral $ j0 - 1
+      when (j0 /= maxBound && j0 /= 0 && j >= 0 && ls `G.unsafeIndex` j) $ do
+        !ix <- pred <$> GM.unsafeRead bkt (fromIntegral $ t `G.unsafeIndex` j)
+        GM.unsafeWrite bkt (fromIntegral $ t `G.unsafeIndex` j) ix
+        GM.unsafeWrite sa (fromIntegral ix) (fromIntegral j)
+      when (i > 0) $ go bkt (i - 1)
+
+{-
+induceSAs t sa k ls = do
+  bkt <- G.thaw $ getBucket t k True
   let n = G.length t
   foreach [n - 1, n - 2 .. 0] $ \i -> do
     j0 <- lift $ GM.read sa i
@@ -190,6 +206,7 @@ induceSAs t sa k ls = do
       ix <- pred <$> GM.read bkt (fromIntegral $ t G.! j)
       GM.write bkt (fromIntegral $ t G.! j) ix
       GM.write sa (fromIntegral ix) (fromIntegral j)
+-}
 
 getBucket :: ( CharType a, G.Vector v a
              , IndexType b, G.Vector v b
